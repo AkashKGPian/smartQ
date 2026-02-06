@@ -7,19 +7,20 @@ const UserSchema = new mongoose.Schema(
       trim: true
     },
 
-    phone: {
-      type: String,
-      index: true
-    },
-
     email: {
       type: String,
+      required: true,
       lowercase: true,
       trim: true
     },
 
-    passwordHash: {
+    phone: {
       type: String
+    },
+
+    passwordHash: {
+      type: String,
+      required: true
     },
 
     role: {
@@ -28,9 +29,7 @@ const UserSchema = new mongoose.Schema(
       default: "PATIENT"
     }
   },
-  {
-    timestamps: true
-  }
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("User", UserSchema);
