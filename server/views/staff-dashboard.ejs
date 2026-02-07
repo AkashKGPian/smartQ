@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Staff Dashboard | SmartQ</title>
+</head>
+<body>
+  <h1>🏥 Staff Dashboard</h1>
+  <a href="/api/auth/staff/logout">🚪 Logout</a>
+
+  <% queues.forEach(item => { %>
+    <hr />
+    <h3>
+      <%= item.queue.type %> Queue
+      <% if (item.queue.isPaused) { %>
+        (Paused)
+      <% } %>
+    </h3>
+
+    <p>Waiting: <%= item.waitingCount %></p>
+
+    <% if (item.currentToken) { %>
+      <p>
+        Currently Serving:
+        <strong>Token <%= item.currentToken.number %></strong>
+      </p>
+
+      <!-- Mark as Served -->
+      <form method="post" action="/api/token/<%= item.currentToken._id %>/complete" style="display:inline">
+        <input type="hidden" name="status" value="SERVED" />
+        <button>✅ Mark Served</button>
+      </form>
+
+      <!-- Mark as Missed -->
+      <form method="post" action="/api/token/<%= item.currentToken._id %>/complete" style="display:inline">
+        <input type="hidden" name="status" value="MISSED" />
+        <button>❌ Mark Missed</button>
+      </form>
+    <% } else { %>
+      <p>No token currently called</p>
+    <% } %>
+
+    <form method="post" action="/api/token/call-next">
+      <input type="hidden" name="queueId" value="<%= item.queue._id %>" />
+      <button>📢 Call Next</button>
+    </form>
+
+    <% if (item.queue.isPaused) { %>
+      <form method="post" action="/api/staff/queue/<%= item.queue._id %>/resume">
+        <button>▶️ Resume Queue</button>
+      </form>
+    <% } else { %>
+      <form method="post" action="/api/staff/queue/<%= item.queue._id %>/pause">
+        <button>⏸️ Pause Queue</button>
+      </form>
+    <% } %>
+  <% }) %>
+</body>
+</html>

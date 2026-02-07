@@ -4,7 +4,8 @@ const {
   renderSignup,
   signupPatient,
   renderLogin,
-  patientLogin
+  patientLogin,
+  patientLogout,
 } = require("../controllers/patient.auth");
 
 router.route('/signup')
@@ -14,5 +15,7 @@ router.route('/signup')
 router.route('/login')
   .get(renderLogin)
   .post(patientLogin);
+
+router.get('/logout', patientLogout);
 
 module.exports = router;

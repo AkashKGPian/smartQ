@@ -4,6 +4,10 @@ const path = require('path');
 
 const patientAuthRoutes = require('./routes/patient.auth.routes');
 const staffAuthRoutes = require('./routes/staff.auth.routes');
+const storeRoutes = require('./routes/store.routes');
+const queueRoutes = require('./routes/queue.routes');
+const tokenRoutes = require('./routes/token.routes');
+const staffRoutes = require('./routes/staff.routes');
 
 const app = express();
 
@@ -24,5 +28,13 @@ app.use((req, res, next) => {
 
 app.use('/api/auth/patient', patientAuthRoutes);
 app.use('/api/auth/staff', staffAuthRoutes);
+
+app.use('/api/store', storeRoutes);
+app.use('/store', storeRoutes); // for QR / browser access
+
+app.use('/api/queue', queueRoutes);
+app.use('/api/token', tokenRoutes);
+
+app.use('/api/staff', staffRoutes);
 
 module.exports = app;

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= store.name %> | SmartQ</title>
+</head>
+<body>
+  <h1><%= store.name %></h1>
+  <p><%= store.address %></p>
+
+  <h3>Select Service</h3>
+
+  <a href="/queue/join?storeId=<%= store._id %>&type=DOCTOR">
+    Join Doctor Queue
+  </a>
+
+  <br/><br/>
+
+  <a href="/queue/join?storeId=<%= store._id %>&type=DISPENSARY">
+    Join Dispensary Queue
+  </a>
+</body>
+</html>
