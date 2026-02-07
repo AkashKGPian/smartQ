@@ -70,6 +70,10 @@ async function patientLogin(req, res) {
       secure: process.env.NODE_ENV === 'production',
     });
 
+    // Redirect browser to patient dashboard, return JSON for API clients
+    if (req.headers.accept?.includes('text/html')) {
+      return res.redirect('/api/patient/dashboard');
+    }
     res.status(200).json({ message: 'Patient logged in' });
   } catch (err) {
     console.error('patientLogin error:', err);

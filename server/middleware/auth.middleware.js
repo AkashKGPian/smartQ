@@ -8,6 +8,10 @@ async function isAuthenticated(req, res, next) {
       req.headers.authorization?.split(' ')[1];
 
     if (!token) {
+      // Redirect browser users to the appropriate login page
+      if (req.headers.accept?.includes('text/html')) {
+        return res.redirect('/api/auth/patient/login');
+      }
       return res.status(401).json({ error: 'Not authenticated' });
     }
 
@@ -15,6 +19,9 @@ async function isAuthenticated(req, res, next) {
     const user = await User.findById(payload.id).select('-passwordHash');
 
     if (!user) {
+      if (req.headers.accept?.includes('text/html')) {
+        return res.redirect('/api/auth/patient/login');
+      }
       return res.status(401).json({ error: 'User not found' });
     }
 

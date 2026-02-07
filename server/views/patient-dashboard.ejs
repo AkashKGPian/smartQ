@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Dashboard | SmartQ</title>
+</head>
+<body>
+
+  <div class="dashboard-layout">
+
+    <!-- ===== LEFT SIDEBAR ===== -->
+    <aside class="sidebar">
+
+      <h2>SmartQ</h2>
+
+      <nav>
+        <a href="/store">Search Hospitals</a>
+      </nav>
+
+      <hr />
+
+      <!-- My Active Queues -->
+      <section>
+        <h3>My Active Queues</h3>
+
+        <% if (activeTokens.length === 0) { %>
+          <p>You are not in any queue right now.</p>
+        <% } else { %>
+          <% activeTokens.forEach(token => { %>
+            <div class="active-token-card">
+              <p><strong>Token #<%= token.number %></strong></p>
+              <p>Store: <%= token.storeId ? token.storeId.name : 'Unknown' %></p>
+              <p>Queue: <%= token.queueId ? token.queueId.type : 'Unknown' %></p>
+              <p>Status: <strong><%= token.status %></strong></p>
+
+              <% if (token.status === 'WAITING') { %>
+                <p>People ahead: <%= token.peopleAhead %></p>
+                <p>Est. wait: ~<%= token.predictedWaitMinutes %> min</p>
+              <% } else if (token.status === 'CALLED') { %>
+                <p>You are being called now!</p>
+              <% } %>
+
+              <!-- Cancel button — will be wired in Step B -->
+              <form method="POST" action="/api/queue/cancel/<%= token._id %>">
+                <button type="submit">Cancel</button>
+              </form>
+            </div>
+            <hr />
+          <% }) %>
+        <% } %>
+      </section>
+
+      <hr />
+
+      <!-- Visit History -->
+      <section>
+        <h3>Visit History</h3>
+
+        <% if (historyTokens.length === 0) { %>
+          <p>No past visits yet.</p>
+        <% } else { %>
+          <% historyTokens.forEach(token => { %>
+            <div class="history-token-card">
+              <p><strong>Token #<%= token.number %></strong></p>
+              <p>Store: <%= token.storeId ? token.storeId.name : 'Unknown' %></p>
+              <p>Date: <%= token.queueId ? token.queueId.date : '' %></p>
+              <p>Status: <strong><%= token.status %></strong></p>
+
+              <!-- Upload prescription button — will be wired in Step E -->
+              <% if (token.status === 'SERVED') { %>
+                <a href="/api/prescription/upload?tokenId=<%= token._id %>">Upload Prescription</a>
+              <% } %>
+            </div>
+            <hr />
+          <% }) %>
+        <% } %>
+      </section>
+
+      <hr />
+
+      <a href="/api/auth/patient/logout">Logout</a>
+    </aside>
+
+    <!-- ===== MAIN CONTENT AREA ===== -->
+    <main class="main-content">
+      <h1>Welcome to SmartQ</h1>
+      <p>Use the sidebar to browse your queues or search for hospitals.</p>
+      <p><a href="/store">Search Hospitals</a></p>
+    </main>
+
+  </div>
+
+</body>
+</html>

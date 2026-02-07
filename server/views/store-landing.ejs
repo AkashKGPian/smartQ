@@ -9,14 +9,18 @@
 
   <h3>Select Service</h3>
 
-  <a href="/queue/join?storeId=<%= store._id %>&type=DOCTOR">
-    Join Doctor Queue
-  </a>
+  <form method="POST" action="/api/queue/join">
+    <input type="hidden" name="storeId" value="<%= store._id %>" />
+    <input type="hidden" name="type" value="DOCTOR" />
+    <button type="submit">Join Doctor Queue</button>
+  </form>
 
-  <br/><br/>
+  <br/>
 
-  <a href="/queue/join?storeId=<%= store._id %>&type=DISPENSARY">
-    Join Dispensary Queue
-  </a>
+  <form method="POST" action="/api/queue/join">
+    <input type="hidden" name="storeId" value="<%= store._id %>" />
+    <input type="hidden" name="type" value="DISPENSARY" />
+    <button type="submit">Join Dispensary Queue</button>
+  </form>
 </body>
 </html>

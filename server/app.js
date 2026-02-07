@@ -8,6 +8,7 @@ const storeRoutes = require('./routes/store.routes');
 const queueRoutes = require('./routes/queue.routes');
 const tokenRoutes = require('./routes/token.routes');
 const staffRoutes = require('./routes/staff.routes');
+const patientRoutes = require('./routes/patient.routes');
 
 const app = express();
 
@@ -36,5 +37,6 @@ app.use('/api/queue', queueRoutes);
 app.use('/api/token', tokenRoutes);
 
 app.use('/api/staff', staffRoutes);
+app.use('/api/patient', patientRoutes);
 
 module.exports = app;

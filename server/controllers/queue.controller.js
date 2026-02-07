@@ -92,7 +92,47 @@ async function joinQueue(req, res) {
   }
 }
 
+/**
+ * DELETE (or POST) /api/queue/cancel/:tokenId
+ *
+ * Lets a patient cancel their place in a queue.
+ * Only the owning patient can cancel, and only if the token is WAITING or CALLED.
+ * The token document is deleted entirely — we don't keep cancelled tokens.
+ */
+async function cancelToken(req, res) {
+  try {
+    const { tokenId } = req.params;
+    const patientId = req.user._id;
+
+    const token = await Token.findById(tokenId);
+    if (!token) {
+      return res.status(404).json({ error: 'Token not found' });
+    }
+
+    // Ensure the patient owns this token
+    if (token.patientId.toString() !== patientId.toString()) {
+      return res.status(403).json({ error: 'Not your token' });
+    }
+
+    // Only active tokens can be cancelled
+    if (!['WAITING', 'CALLED'].includes(token.status)) {
+      return res.status(400).json({ error: 'Token is no longer active' });
+    }
+
+    await Token.findByIdAndDelete(tokenId);
+
+    if (req.headers.accept?.includes('text/html')) {
+      return res.redirect('/api/patient/dashboard');
+    }
+    res.json({ message: 'Token cancelled' });
+  } catch (err) {
+    console.error('cancelToken error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+}
+
 module.exports = {
   getOrCreateQueue,
   joinQueue,
+  cancelToken,
 };

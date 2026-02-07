@@ -12,7 +12,7 @@ async function staffDashboard(req, res) {
   try {
     const today = getTodayDate();
 
-    const queues = await Queue.find({ date: today }).lean();
+    const queues = await Queue.find({ date: today }).populate('storeId').lean();
 
     const data = [];
 

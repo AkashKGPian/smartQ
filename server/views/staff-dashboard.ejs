@@ -10,7 +10,7 @@
   <% queues.forEach(item => { %>
     <hr />
     <h3>
-      <%= item.queue.type %> Queue
+      <%= item.queue.storeId ? item.queue.storeId.name : '' %> — <%= item.queue.type %> Queue
       <% if (item.queue.isPaused) { %>
         (Paused)
       <% } %>
