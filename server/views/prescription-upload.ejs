@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Prescription | SmartQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-glow: rgba(59, 130, 246, 0.35);
+      --accent: #10b981;
+      --danger: #ef4444;
+      --bg: #050a18;
+      --surface: rgba(255, 255, 255, 0.04);
+      --surface-hover: rgba(255, 255, 255, 0.07);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(59, 130, 246, 0.5);
+      --text: #f1f5f9;
+      --text-dim: #64748b;
+      --radius: 16px;
+      --radius-sm: 12px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .blob { position: fixed; border-radius: 50%; filter: blur(100px); opacity: 0.45; pointer-events: none; z-index: 0; }
+    .blob-1 { width: 450px; height: 450px; background: radial-gradient(circle, rgba(16,185,129,0.2), transparent 70%); bottom: -12%; right: -8%; }
+    .blob-2 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(59,130,246,0.18), transparent 70%); top: -6%; left: -5%; }
+
+    .card {
+      position: relative; z-index: 1; width: 100%; max-width: 480px; margin: 1.5rem;
+      padding: 2.5rem 2rem; background: var(--surface); backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: 0 32px 64px -16px rgba(0,0,0,0.6);
+    }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); text-decoration: none;
+      font-size: 0.82rem; font-weight: 500; margin-bottom: 1.5rem; transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg { width: 16px; height: 16px; }
+
+    .upload-icon {
+      width: 56px; height: 56px; margin: 0 auto 1.25rem; border-radius: 50%;
+      background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .upload-icon svg { width: 26px; height: 26px; color: var(--accent); }
+
+    h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.3px; text-align: center; margin-bottom: 0.35rem; }
+    .subtitle { text-align: center; color: var(--text-dim); font-size: 0.88rem; margin-bottom: 1.75rem; line-height: 1.5; }
+
+    /* Token info summary */
+    .token-summary {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.75rem;
+    }
+    .summary-item {
+      padding: 0.75rem; border-radius: var(--radius-sm); background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+    }
+    .summary-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); margin-bottom: 0.2rem; }
+    .summary-value { font-size: 0.88rem; font-weight: 600; }
+
+    /* Dropzone */
+    .dropzone {
+      position: relative; padding: 2.5rem 1.5rem; border: 2px dashed var(--border);
+      border-radius: var(--radius); text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; margin-bottom: 1rem;
+    }
+    .dropzone:hover, .dropzone.dragover { border-color: var(--primary); background: rgba(59,130,246,0.04); }
+    .dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .dropzone-icon { margin: 0 auto 0.75rem; }
+    .dropzone-icon svg { width: 36px; height: 36px; color: var(--text-dim); }
+    .dropzone-text { font-size: 0.88rem; font-weight: 500; margin-bottom: 0.25rem; }
+    .dropzone-hint { font-size: 0.75rem; color: var(--text-dim); }
+    .file-name { margin-top: 0.75rem; font-size: 0.82rem; font-weight: 600; color: var(--accent); display: none; }
+
+    /* Existing preview */
+    .existing-preview { margin-bottom: 1.5rem; }
+    .existing-preview img {
+      width: 100%; max-height: 240px; object-fit: contain; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); margin-bottom: 0.75rem;
+    }
+    .existing-label { font-size: 0.78rem; color: var(--accent); font-weight: 600; margin-bottom: 0.5rem; }
+    .existing-link {
+      display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem;
+      color: var(--primary); text-decoration: none; font-weight: 500;
+    }
+    .existing-link:hover { text-decoration: underline; }
+
+    .btn {
+      display: block; width: 100%; padding: 0.85rem; margin-top: 0.25rem; font-family: inherit;
+      font-size: 0.95rem; font-weight: 600; color: #fff; background: var(--accent);
+      border: none; border-radius: var(--radius-sm); cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 8px 24px -4px rgba(16,185,129,0.35); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-outline {
+      display: block; width: 100%; padding: 0.7rem; margin-top: 0.6rem; font-family: inherit;
+      font-size: 0.82rem; font-weight: 500; color: var(--text-dim); background: transparent;
+      border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer;
+      text-align: center; text-decoration: none; transition: all 0.15s;
+    }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.15); color: var(--text); background: var(--surface); }
+
+    .btn-danger {
+      display: block; width: 100%; padding: 0.6rem; margin-top: 0.5rem; font-family: inherit;
+      font-size: 0.78rem; font-weight: 600; color: var(--danger); background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.18); border-radius: 8px; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.15); }
+
+    @media (max-width: 480px) {
+      .card { padding: 2rem 1.25rem; margin: 1rem; }
+      h1 { font-size: 1.25rem; }
+      .dropzone { padding: 1.75rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="card">
+    <a class="back-link" href="/api/patient/dashboard">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Back to Dashboard
+    </a>
+
+    <div class="upload-icon">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+    </div>
+
+    <h1>Upload Prescription</h1>
+    <p class="subtitle">Upload the prescription for your completed visit</p>
+
+    <div class="token-summary">
+      <div class="summary-item">
+        <div class="summary-label">Token</div>
+        <div class="summary-value">#<%= token.number %></div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">Hospital</div>
+        <div class="summary-value"><%= token.storeId ? token.storeId.name : 'Unknown' %></div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">Service</div>
+        <div class="summary-value"><%= token.queueId ? token.queueId.type : 'Unknown' %></div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-label">Status</div>
+        <div class="summary-value" style="color:var(--accent)">SERVED</div>
+      </div>
+    </div>
+
+    <% if (token.prescription) { %>
+      <div class="existing-preview">
+        <div class="existing-label">Current Prescription</div>
+        <% if (/\.(jpg|jpeg|png|gif|webp)$/i.test(token.prescription)) { %>
+          <img src="<%= token.prescription %>" alt="Prescription" />
+        <% } %>
+        <a class="existing-link" href="<%= token.prescription %>" target="_blank">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          View full file
+        </a>
+      </div>
+
+      <!-- Delete existing -->
+      <form method="POST" action="/api/prescription/<%= token._id %>/delete">
+        <button type="submit" class="btn-danger">Remove Current Prescription</button>
+      </form>
+
+      <div style="height:1rem"></div>
+    <% } %>
+
+    <!-- Upload form -->
+    <form method="POST" action="/api/prescription/upload" enctype="multipart/form-data" id="uploadForm">
+      <input type="hidden" name="tokenId" value="<%= token._id %>" />
+
+      <div class="dropzone" id="dropzone">
+        <input type="file" name="prescription" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf" id="fileInput" />
+        <div class="dropzone-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+        </div>
+        <p class="dropzone-text">Drop your file here or click to browse</p>
+        <p class="dropzone-hint">JPG, PNG, GIF, WebP or PDF — max 5 MB</p>
+        <p class="file-name" id="fileName"></p>
+      </div>
+
+      <button type="submit" class="btn" id="uploadBtn" disabled>
+        <%= token.prescription ? 'Replace Prescription' : 'Upload Prescription' %>
+      </button>
+    </form>
+
+    <a class="btn-outline" href="/api/patient/dashboard">Cancel & Go Back</a>
+  </div>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        fileName.textContent = fileInput.files[0].name;
+        fileName.style.display = 'block';
+        uploadBtn.disabled = false;
+      }
+    });
+
+    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        fileName.textContent = e.dataTransfer.files[0].name;
+        fileName.style.display = 'block';
+        uploadBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

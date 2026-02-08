@@ -1,173 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Signup</title>
-    <style>
-        :root {
-            --primary-color: #4a90e2;
-            --bg-dark: #0f172a;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up | SmartQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body, html {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-glow: rgba(59, 130, 246, 0.35);
+      --bg: #050a18;
+      --surface: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(59, 130, 246, 0.5);
+      --text: #f1f5f9;
+      --text-dim: #64748b;
+      --radius: 16px;
+      --radius-sm: 12px;
+    }
 
-        .signup-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
 
-        /* The floating gradient sphere from your reference */
-        .bg-gradient-sphere {
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(74, 144, 226, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
-            top: 10%;
-            right: 15%;
-            z-index: 0;
-            filter: blur(50px);
-        }
+    .blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.5; pointer-events: none; z-index: 0; }
+    .blob-1 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(59,130,246,0.3), transparent 70%); top: -10%; left: -8%; }
+    .blob-2 { width: 350px; height: 350px; background: radial-gradient(circle, rgba(139,92,246,0.2), transparent 70%); bottom: -5%; right: -5%; }
 
-        .glass-container {
-            position: relative;
-            z-index: 1;
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 3rem;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
+    .card {
+      position: relative; z-index: 1; width: 100%; max-width: 420px; margin: 1.5rem;
+      padding: 2.5rem 2rem; background: var(--surface); backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: 0 32px 64px -16px rgba(0,0,0,0.6);
+    }
 
-        .signup-header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
+    .logo { font-size: 0.85rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--primary); margin-bottom: 1.75rem; }
+    h1 { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.35rem; }
+    .subtitle { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.5; }
 
-        .signup-header p {
-            color: var(--text-dim);
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-        }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--text-dim); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field input { width: 100%; padding: 0.75rem 1rem; font-size: 0.95rem; font-family: inherit; color: var(--text); background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .field input::placeholder { color: #475569; }
+    .field input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
 
-        .signup-form .input-group {
-            margin-bottom: 1.2rem;
-        }
+    .btn { display: block; width: 100%; padding: 0.85rem; margin-top: 0.5rem; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #fff; background: var(--primary); border: none; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; }
+    .btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 8px 24px -4px var(--primary-glow); }
+    .btn:active { transform: translateY(0); }
 
-        .signup-form input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: white;
-            font-size: 1rem;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
+    .footer { text-align: center; margin-top: 1.75rem; font-size: 0.85rem; color: var(--text-dim); }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .footer a:hover { text-decoration: underline; }
 
-        .signup-form input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.2s ease, background 0.2s ease;
-            margin-top: 1rem;
-        }
-
-        .submit-btn:hover {
-            background: #357abd;
-            transform: translateY(-2px);
-        }
-
-        .signup-footer {
-            margin-top: 2rem;
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-dim);
-        }
-
-        .signup-footer a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        .signup-footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    @media (max-width: 480px) { .card { padding: 2rem 1.25rem; margin: 1rem; } h1 { font-size: 1.4rem; } }
+  </style>
 </head>
 <body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
 
-    <div class="signup-wrapper">
-        <div class="bg-gradient-sphere"></div>
-        
-        <div class="glass-container">
-            <header class="signup-header">
-                <h1>Patient Portal</h1>
-                <p>Register to manage your appointments and health records.</p>
-            </header>
+  <div class="card">
+    <div class="logo">SmartQ</div>
+    <h1>Create Account</h1>
+    <p class="subtitle">Register to manage your hospital queues digitally.</p>
 
-            <form action="/api/auth/patient/signup" method="POST" class="signup-form">
-                <div class="input-group">
-                    <input type="text" name="name" placeholder="Full Name" required>
-                </div>
+    <form action="/api/auth/patient/signup" method="POST">
+      <div class="field">
+        <label for="name">Full Name</label>
+        <input id="name" type="text" name="name" placeholder="John Doe" required />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" placeholder="you@example.com" required />
+      </div>
+      <div class="field">
+        <label for="phone">Phone</label>
+        <input id="phone" type="tel" name="phone" placeholder="+91 98765 43210" required />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" placeholder="Min. 6 characters" required />
+      </div>
+      <button type="submit" class="btn">Create Account</button>
+    </form>
 
-                <div class="input-group">
-                    <input type="email" name="email" placeholder="Email Address" required>
-                </div>
-
-                <div class="input-group">
-                    <input type="tel" name="phone" placeholder="Phone Number" required>
-                </div>
-
-                <div class="input-group">
-                    <input type="password" name="password" placeholder="Password" required>
-                </div>
-
-                <button type="submit" class="submit-btn">Create Account</button>
-            </form>
-
-            <footer class="signup-footer">
-                <p>Already registered? <a href="/api/auth/patient/login">Sign in here.</a></p>
-            </footer>
-        </div>
-    </div>
-
+    <p class="footer">Already have an account? <a href="/api/auth/patient/login">Sign in</a></p>
+  </div>
 </body>
 </html>

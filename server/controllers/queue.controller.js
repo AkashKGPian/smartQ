@@ -1,6 +1,7 @@
 const Queue = require('../models/Queue');
 const Token = require('../models/Token');
 const Store = require('../models/Store');
+const { getIO } = require('../helpers/socket');
 
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
@@ -74,6 +75,18 @@ async function joinQueue(req, res) {
     number: queue.currentTokenNumber,
   });
 
+  // --- Socket.IO: notify the queue room that a new token was created ---
+  try {
+    const io = getIO();
+    io.to(`queue:${queue._id}`).emit('token:created', {
+      tokenId: token._id,
+      tokenNumber: token.number,
+      queueId: queue._id,
+      queueType: queue.type,
+      storeName: store.name,
+    });
+  } catch (_) { /* socket not ready yet — non-fatal */ }
+
   // 6️ API vs Browser response
   if (req.headers.accept?.includes('text/html')) {
     return res.render('token-card', { token, store, queue });
@@ -120,6 +133,19 @@ async function cancelToken(req, res) {
     }
 
     await Token.findByIdAndDelete(tokenId);
+
+    // --- Socket.IO: notify queue room and the patient ---
+    try {
+      const io = getIO();
+      io.to(`queue:${token.queueId}`).emit('token:cancelled', {
+        tokenId: token._id,
+        queueId: token.queueId,
+      });
+      io.to(`user:${patientId}`).emit('token:cancelled', {
+        tokenId: token._id,
+        queueId: token.queueId,
+      });
+    } catch (_) { /* non-fatal */ }
 
     if (req.headers.accept?.includes('text/html')) {
       return res.redirect('/api/patient/dashboard');

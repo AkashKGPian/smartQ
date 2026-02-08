@@ -1,14 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Portal | SmartQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-glow: rgba(59, 130, 246, 0.35);
+      --accent: #10b981;
+      --bg: #050a18;
+      --surface: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(59, 130, 246, 0.5);
+      --text: #f1f5f9;
+      --text-dim: #64748b;
+      --radius: 16px;
+      --radius-sm: 12px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.5; pointer-events: none; z-index: 0; }
+    .blob-1 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(16,185,129,0.22), transparent 70%); bottom: -10%; right: -8%; }
+    .blob-2 { width: 350px; height: 350px; background: radial-gradient(circle, rgba(59,130,246,0.2), transparent 70%); top: -6%; left: -6%; }
+
+    .card {
+      position: relative; z-index: 1; width: 100%; max-width: 420px; margin: 1.5rem;
+      padding: 2.5rem 2rem; background: var(--surface); backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: 0 32px 64px -16px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+
+    .logo { font-size: 0.85rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 1.75rem; }
+    .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; background: rgba(16,185,129,0.12); color: var(--accent); border: 1px solid rgba(16,185,129,0.2); margin-bottom: 1.25rem; }
+    h1 { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.35rem; }
+    .subtitle { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 2.25rem; line-height: 1.5; }
+
+    .field { margin-bottom: 1.15rem; text-align: left; }
+    .field label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--text-dim); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field input { width: 100%; padding: 0.75rem 1rem; font-size: 0.95rem; font-family: inherit; color: var(--text); background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .field input::placeholder { color: #475569; }
+    .field input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+    .btn { display: block; width: 100%; padding: 0.85rem; margin-top: 0.5rem; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #fff; background: var(--accent); border: none; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; }
+    .btn:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 8px 24px -4px rgba(16,185,129,0.35); }
+    .btn:active { transform: translateY(0); }
+
+    @media (max-width: 480px) { .card { padding: 2rem 1.25rem; margin: 1rem; } h1 { font-size: 1.4rem; } }
+  </style>
+</head>
 <body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
 
-<h3>Staff Login</h3>
+  <div class="card">
+    <div class="logo">SmartQ</div>
+    <span class="badge">Staff Portal</span>
+    <h1>Staff Sign In</h1>
+    <p class="subtitle">Access your queue management dashboard</p>
 
-<form method="POST" action="/api/auth/staff/login">
-  <input name="email" type="email" placeholder="Staff Email" required />
-  <input name="password" type="password" placeholder="Password" required />
-  <button type="submit">Login</button>
-</form>
-
+    <form method="POST" action="/api/auth/staff/login">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" placeholder="staff@hospital.com" required />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" placeholder="Enter your password" required />
+      </div>
+      <button type="submit" class="btn">Sign In</button>
+    </form>
+  </div>
 </body>
 </html>

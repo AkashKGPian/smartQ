@@ -9,6 +9,7 @@ const queueRoutes = require('./routes/queue.routes');
 const tokenRoutes = require('./routes/token.routes');
 const staffRoutes = require('./routes/staff.routes');
 const patientRoutes = require('./routes/patient.routes');
+const prescriptionRoutes = require('./routes/prescription.routes');
 
 const app = express();
 
@@ -20,6 +21,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());//Adds JSON/body parsing
 app.use(express.urlencoded({ extended: true }));//Adds URL-encoded parsing
 app.use(cookieParser());
+
+// serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // simple request logger for debugging
 app.use((req, res, next) => {
@@ -38,5 +42,6 @@ app.use('/api/token', tokenRoutes);
 
 app.use('/api/staff', staffRoutes);
 app.use('/api/patient', patientRoutes);
+app.use('/api/prescription', prescriptionRoutes);
 
 module.exports = app;

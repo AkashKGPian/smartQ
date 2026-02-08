@@ -1,5 +1,6 @@
 const Queue = require('../models/Queue');
 const Token = require('../models/Token');
+const { getIO } = require('../helpers/socket');
 
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
@@ -56,6 +57,12 @@ async function pauseQueue(req, res) {
     queue.isPaused = true;
     await queue.save();
 
+    // --- Socket.IO: notify everyone watching this queue ---
+    try {
+      const io = getIO();
+      io.to(`queue:${queue._id}`).emit('queue:paused', { queueId: queue._id });
+    } catch (_) { /* non-fatal */ }
+
     // If browser request, redirect back to dashboard
     if (req.headers.accept?.includes('text/html')) {
       return res.redirect('/api/staff/dashboard');
@@ -77,6 +84,12 @@ async function resumeQueue(req, res) {
 
     queue.isPaused = false;
     await queue.save();
+
+    // --- Socket.IO: notify everyone watching this queue ---
+    try {
+      const io = getIO();
+      io.to(`queue:${queue._id}`).emit('queue:resumed', { queueId: queue._id });
+    } catch (_) { /* non-fatal */ }
 
     // If browser request, redirect back to dashboard
     if (req.headers.accept?.includes('text/html')) {

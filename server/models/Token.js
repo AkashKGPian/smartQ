@@ -33,6 +33,11 @@ const tokenSchema = new mongoose.Schema(
 
     calledAt: Date,
     servedAt: Date,
+
+    prescription: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );

@@ -4,92 +4,393 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Patient Dashboard | SmartQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-glow: rgba(59, 130, 246, 0.35);
+      --accent: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #050a18;
+      --bg-sidebar: rgba(255, 255, 255, 0.02);
+      --surface: rgba(255, 255, 255, 0.04);
+      --surface-hover: rgba(255, 255, 255, 0.07);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(59, 130, 246, 0.5);
+      --text: #f1f5f9;
+      --text-dim: #64748b;
+      --radius: 16px;
+      --radius-sm: 12px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Ambient blobs ── */
+    .blob { position: fixed; border-radius: 50%; filter: blur(100px); opacity: 0.45; pointer-events: none; z-index: 0; }
+    .blob-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(59,130,246,0.2), transparent 70%); bottom: -15%; left: -8%; }
+    .blob-2 { width: 350px; height: 350px; background: radial-gradient(circle, rgba(16,185,129,0.15), transparent 70%); top: -10%; right: -5%; }
+
+    /* ── Layout ── */
+    .layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 340px; flex-shrink: 0; padding: 1.75rem 1.25rem;
+      background: var(--bg-sidebar); border-right: 1px solid var(--border);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      display: flex; flex-direction: column; overflow-y: auto;
+    }
+
+    .sidebar-logo { font-size: 0.85rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--primary); margin-bottom: 1.5rem; }
+
+    .nav-link {
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm); color: var(--text-dim); text-decoration: none;
+      font-size: 0.85rem; font-weight: 500; transition: all 0.15s;
+    }
+    .nav-link:hover { background: var(--surface-hover); color: var(--text); }
+    .nav-link svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+    .section-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); padding: 0 0.85rem; margin-bottom: 0.75rem; }
+
+    /* ── Token Cards ── */
+    .token-card {
+      padding: 1rem; margin-bottom: 0.75rem; border-radius: var(--radius-sm);
+      background: var(--surface); border: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .token-card:hover { background: var(--surface-hover); }
+
+    .token-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+    .token-number { font-size: 1rem; font-weight: 700; }
+    .token-status {
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px;
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase;
+    }
+    .status-waiting  { background: rgba(59,130,246,0.12);  color: var(--primary); border: 1px solid rgba(59,130,246,0.2); }
+    .status-called   { background: rgba(245,158,11,0.12);  color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .status-served   { background: rgba(16,185,129,0.12);  color: var(--accent);  border: 1px solid rgba(16,185,129,0.2); }
+    .status-missed   { background: rgba(239,68,68,0.12);   color: var(--danger);  border: 1px solid rgba(239,68,68,0.2); }
+
+    .token-meta { font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; }
+    .token-meta strong { color: var(--text); font-weight: 500; }
+
+    .called-banner {
+      display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.65rem;
+      border-radius: 8px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2);
+      color: var(--warning); font-size: 0.78rem; font-weight: 600; margin-top: 0.5rem;
+    }
+    .called-banner svg { width: 14px; height: 14px; }
+
+    .wait-info {
+      display: flex; gap: 0.75rem; margin-top: 0.5rem;
+    }
+    .wait-chip {
+      display: flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.55rem;
+      border-radius: 8px; background: rgba(59,130,246,0.08); font-size: 0.75rem; color: var(--primary);
+    }
+
+    .btn-cancel {
+      width: 100%; margin-top: 0.65rem; padding: 0.5rem; font-family: inherit; font-size: 0.78rem; font-weight: 600;
+      color: var(--danger); background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18);
+      border-radius: 8px; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-cancel:hover { background: rgba(239,68,68,0.15); }
+
+    .btn-upload {
+      display: inline-block; margin-top: 0.5rem; padding: 0.35rem 0.7rem; font-size: 0.75rem; font-weight: 500;
+      color: var(--accent); background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.18);
+      border-radius: 8px; text-decoration: none; transition: all 0.15s;
+    }
+    .btn-upload:hover { background: rgba(16,185,129,0.15); }
+
+    .empty { padding: 1rem 0.85rem; font-size: 0.85rem; color: var(--text-dim); }
+
+    .sidebar-bottom { margin-top: auto; padding-top: 1rem; }
+    .logout-link {
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 0.85rem;
+      border-radius: var(--radius-sm); color: var(--danger); text-decoration: none;
+      font-size: 0.85rem; font-weight: 500; transition: all 0.15s;
+    }
+    .logout-link:hover { background: rgba(239,68,68,0.08); }
+
+    /* ── Main Content ── */
+    .main {
+      flex: 1; display: flex; flex-direction: column;
+      padding: 2.5rem; overflow-y: auto;
+    }
+
+    .main-header { margin-bottom: 2rem; }
+    .main-header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.35rem; }
+    .main-header h1 span { color: var(--primary); }
+    .main-header p { color: var(--text-dim); font-size: 0.95rem; line-height: 1.5; }
+
+    .search-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; margin-top: 1rem;
+      background: var(--primary); color: #fff; border-radius: var(--radius-sm);
+      text-decoration: none; font-weight: 600; font-size: 0.9rem;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .search-cta:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 8px 24px -4px var(--primary-glow); }
+    .search-cta svg { width: 18px; height: 18px; }
+
+    /* Prescription Section */
+    .rx-section { margin-top: 2rem; }
+    .rx-section-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 1rem; }
+    .rx-empty { padding: 3rem 1.5rem; text-align: center; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); }
+    .rx-empty svg { width: 40px; height: 40px; color: var(--text-dim); margin-bottom: 0.75rem; }
+    .rx-empty p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.5; }
+
+    .rx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+
+    .rx-card {
+      padding: 1.25rem; border-radius: var(--radius); background: var(--surface);
+      border: 1px solid var(--border); transition: background 0.15s;
+    }
+    .rx-card:hover { background: var(--surface-hover); }
+
+    .rx-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .rx-card-token { font-size: 0.95rem; font-weight: 700; }
+    .rx-card-badge {
+      padding: 0.18rem 0.55rem; border-radius: 20px; font-size: 0.6rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .badge-uploaded { background: rgba(16,185,129,0.12); color: var(--accent); border: 1px solid rgba(16,185,129,0.2); }
+    .badge-pending  { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+
+    .rx-card-meta { font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 0.75rem; }
+    .rx-card-meta strong { color: var(--text); font-weight: 500; }
+
+    .rx-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 0.75rem; }
+
+    .rx-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    .rx-btn {
+      flex: 1; min-width: 80px; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
+      padding: 0.45rem 0.65rem; font-family: inherit; font-size: 0.72rem; font-weight: 600;
+      border-radius: 8px; text-decoration: none; cursor: pointer; transition: all 0.15s; border: none;
+    }
+    .rx-btn-view { background: rgba(59,130,246,0.1); color: var(--primary); border: 1px solid rgba(59,130,246,0.2); }
+    .rx-btn-view:hover { background: rgba(59,130,246,0.18); }
+    .rx-btn-upload { background: rgba(16,185,129,0.1); color: var(--accent); border: 1px solid rgba(16,185,129,0.2); }
+    .rx-btn-upload:hover { background: rgba(16,185,129,0.18); }
+    .rx-btn-delete { background: rgba(239,68,68,0.08); color: var(--danger); border: 1px solid rgba(239,68,68,0.18); }
+    .rx-btn-delete:hover { background: rgba(239,68,68,0.15); }
+    .rx-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+    /* ── Mobile ── */
+    .mobile-header { display: none; }
+
+    @media (max-width: 768px) {
+      .layout { flex-direction: column; }
+      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: none; }
+      .main { padding: 1.5rem 1.25rem; }
+      .main-header h1 { font-size: 1.5rem; }
+      .rx-grid { grid-template-columns: 1fr; }
+      .mobile-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
+    }
+  </style>
 </head>
 <body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
 
-  <div class="dashboard-layout">
-
-    <!-- ===== LEFT SIDEBAR ===== -->
+  <div class="layout">
+    <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar">
+      <div class="sidebar-logo">SmartQ</div>
 
-      <h2>SmartQ</h2>
+      <a class="nav-link" href="/store">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
+        Search Hospitals
+      </a>
 
-      <nav>
-        <a href="/store">Search Hospitals</a>
-      </nav>
+      <div class="divider"></div>
 
-      <hr />
+      <!-- Active Queues -->
+      <div class="section-label">Active Queues</div>
 
-      <!-- My Active Queues -->
-      <section>
-        <h3>My Active Queues</h3>
-
-        <% if (activeTokens.length === 0) { %>
-          <p>You are not in any queue right now.</p>
-        <% } else { %>
-          <% activeTokens.forEach(token => { %>
-            <div class="active-token-card">
-              <p><strong>Token #<%= token.number %></strong></p>
-              <p>Store: <%= token.storeId ? token.storeId.name : 'Unknown' %></p>
-              <p>Queue: <%= token.queueId ? token.queueId.type : 'Unknown' %></p>
-              <p>Status: <strong><%= token.status %></strong></p>
-
-              <% if (token.status === 'WAITING') { %>
-                <p>People ahead: <%= token.peopleAhead %></p>
-                <p>Est. wait: ~<%= token.predictedWaitMinutes %> min</p>
-              <% } else if (token.status === 'CALLED') { %>
-                <p>You are being called now!</p>
-              <% } %>
-
-              <!-- Cancel button — will be wired in Step B -->
-              <form method="POST" action="/api/queue/cancel/<%= token._id %>">
-                <button type="submit">Cancel</button>
-              </form>
+      <% if (activeTokens.length === 0) { %>
+        <p class="empty">You are not in any queue right now.</p>
+      <% } else { %>
+        <% activeTokens.forEach(token => { %>
+          <div class="token-card">
+            <div class="token-header">
+              <span class="token-number">Token #<%= token.number %></span>
+              <span class="token-status status-<%= token.status.toLowerCase() %>"><%= token.status %></span>
             </div>
-            <hr />
-          <% }) %>
-        <% } %>
-      </section>
+            <div class="token-meta">
+              <strong><%= token.storeId ? token.storeId.name : 'Unknown' %></strong><br/>
+              <%= token.queueId ? token.queueId.type : 'Unknown' %> Queue
+            </div>
 
-      <hr />
+            <% if (token.status === 'WAITING') { %>
+              <div class="wait-info">
+                <span class="wait-chip">
+                  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m5-6a4 4 0 100-8 4 4 0 000 8z"/></svg>
+                  <%= token.peopleAhead %> ahead
+                </span>
+                <span class="wait-chip">
+                  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:12px;height:12px"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/></svg>
+                  ~<%= token.predictedWaitMinutes %> min
+                </span>
+              </div>
+            <% } else if (token.status === 'CALLED') { %>
+              <div class="called-banner">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0m6 0H9"/></svg>
+                You are being called now!
+              </div>
+            <% } %>
+
+            <form method="POST" action="/api/queue/cancel/<%= token._id %>">
+              <button type="submit" class="btn-cancel">Cancel Queue</button>
+            </form>
+          </div>
+        <% }) %>
+      <% } %>
+
+      <div class="divider"></div>
 
       <!-- Visit History -->
-      <section>
-        <h3>Visit History</h3>
+      <div class="section-label">Visit History</div>
 
-        <% if (historyTokens.length === 0) { %>
-          <p>No past visits yet.</p>
-        <% } else { %>
-          <% historyTokens.forEach(token => { %>
-            <div class="history-token-card">
-              <p><strong>Token #<%= token.number %></strong></p>
-              <p>Store: <%= token.storeId ? token.storeId.name : 'Unknown' %></p>
-              <p>Date: <%= token.queueId ? token.queueId.date : '' %></p>
-              <p>Status: <strong><%= token.status %></strong></p>
-
-              <!-- Upload prescription button — will be wired in Step E -->
-              <% if (token.status === 'SERVED') { %>
-                <a href="/api/prescription/upload?tokenId=<%= token._id %>">Upload Prescription</a>
-              <% } %>
+      <% if (historyTokens.length === 0) { %>
+        <p class="empty">No past visits yet.</p>
+      <% } else { %>
+        <% historyTokens.forEach(token => { %>
+          <div class="token-card">
+            <div class="token-header">
+              <span class="token-number">Token #<%= token.number %></span>
+              <span class="token-status status-<%= token.status.toLowerCase() %>"><%= token.status %></span>
             </div>
-            <hr />
-          <% }) %>
-        <% } %>
-      </section>
+            <div class="token-meta">
+              <strong><%= token.storeId ? token.storeId.name : 'Unknown' %></strong><br/>
+              <%= token.queueId ? token.queueId.date : '' %>
+            </div>
 
-      <hr />
+            <% if (token.status === 'SERVED') { %>
+              <% if (token.prescription) { %>
+                <a class="btn-upload" href="<%= token.prescription %>" target="_blank" style="color:var(--primary);background:rgba(59,130,246,0.08);border-color:rgba(59,130,246,0.18)">View Prescription</a>
+              <% } else { %>
+                <a class="btn-upload" href="/api/prescription/upload?tokenId=<%= token._id %>">Upload Prescription</a>
+              <% } %>
+            <% } %>
+          </div>
+        <% }) %>
+      <% } %>
 
-      <a href="/api/auth/patient/logout">Logout</a>
+      <!-- Logout -->
+      <div class="sidebar-bottom">
+        <div class="divider"></div>
+        <a class="logout-link" href="/api/auth/patient/logout">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1"/></svg>
+          Sign Out
+        </a>
+      </div>
     </aside>
 
-    <!-- ===== MAIN CONTENT AREA ===== -->
-    <main class="main-content">
-      <h1>Welcome to SmartQ</h1>
-      <p>Use the sidebar to browse your queues or search for hospitals.</p>
-      <p><a href="/store">Search Hospitals</a></p>
-    </main>
+    <!-- ===== MAIN CONTENT — Prescriptions ===== -->
+    <main class="main">
+      <div class="main-header">
+        <h1>Welcome to <span>SmartQ</span></h1>
+        <p>Your queue status is in the sidebar. Search for hospitals and clinics to join a new queue.</p>
+        <a class="search-cta" href="/store">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
+          Search Hospitals
+        </a>
+      </div>
 
+      <!-- Prescriptions Grid -->
+      <div class="rx-section">
+        <div class="rx-section-label">My Prescriptions</div>
+
+        <% const servedTokens = historyTokens.filter(t => t.status === 'SERVED'); %>
+
+        <% if (servedTokens.length === 0) { %>
+          <div class="rx-empty">
+            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+            <p>No prescriptions yet. After a visit is completed, you can upload your prescription here.</p>
+          </div>
+        <% } else { %>
+          <div class="rx-grid">
+            <% servedTokens.forEach(token => { %>
+              <div class="rx-card">
+                <div class="rx-card-header">
+                  <span class="rx-card-token">Token #<%= token.number %></span>
+                  <span class="rx-card-badge <%= token.prescription ? 'badge-uploaded' : 'badge-pending' %>">
+                    <%= token.prescription ? 'Uploaded' : 'Pending' %>
+                  </span>
+                </div>
+                <div class="rx-card-meta">
+                  <strong><%= token.storeId ? token.storeId.name : 'Unknown' %></strong><br/>
+                  <%= token.queueId ? token.queueId.type : '' %> &middot; <%= token.queueId ? token.queueId.date : '' %>
+                </div>
+
+                <% if (token.prescription) { %>
+                  <% if (/\.(jpg|jpeg|png|gif|webp)$/i.test(token.prescription)) { %>
+                    <img class="rx-preview" src="<%= token.prescription %>" alt="Prescription" />
+                  <% } %>
+                  <div class="rx-actions">
+                    <a class="rx-btn rx-btn-view" href="<%= token.prescription %>" target="_blank">
+                      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                      View
+                    </a>
+                    <a class="rx-btn rx-btn-upload" href="/api/prescription/upload?tokenId=<%= token._id %>">
+                      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+                      Replace
+                    </a>
+                    <form method="POST" action="/api/prescription/<%= token._id %>/delete" style="flex:1;min-width:80px;display:contents">
+                      <button type="submit" class="rx-btn rx-btn-delete">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                <% } else { %>
+                  <div class="rx-actions">
+                    <a class="rx-btn rx-btn-upload" href="/api/prescription/upload?tokenId=<%= token._id %>" style="flex:1">
+                      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                      Upload Prescription
+                    </a>
+                  </div>
+                <% } %>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </main>
   </div>
 
+  <!-- Socket.IO client for real-time updates -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    <% activeTokens.forEach(token => { %>
+      <% if (token.queueId) { %>
+        socket.emit('watch:queue', '<%= token.queueId._id %>');
+      <% } %>
+    <% }) %>
+
+    socket.on('token:called',     () => location.reload());
+    socket.on('token:completed',  () => location.reload());
+    socket.on('token:cancelled',  () => location.reload());
+    socket.on('token:created',    () => location.reload());
+    socket.on('queue:paused',     () => location.reload());
+    socket.on('queue:resumed',    () => location.reload());
+  </script>
 </body>
 </html>

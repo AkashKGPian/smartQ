@@ -28,6 +28,10 @@ async function isAuthenticated(req, res, next) {
     req.user = user;
     next();
   } catch (err) {
+    if (req.headers.accept?.includes('text/html')) {
+      res.clearCookie('token');
+      return res.redirect('/api/auth/patient/login');
+    }
     return res.status(401).json({ error: 'Invalid token' });
   }
 }

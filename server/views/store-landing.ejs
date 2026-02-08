@@ -1,26 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= store.name %> | SmartQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-glow: rgba(59, 130, 246, 0.35);
+      --accent: #10b981;
+      --bg: #050a18;
+      --surface: rgba(255, 255, 255, 0.04);
+      --surface-hover: rgba(255, 255, 255, 0.07);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f1f5f9;
+      --text-dim: #64748b;
+      --radius: 16px;
+      --radius-sm: 12px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .blob { position: fixed; border-radius: 50%; filter: blur(100px); opacity: 0.4; pointer-events: none; z-index: 0; }
+    .blob-1 { width: 450px; height: 450px; background: radial-gradient(circle, rgba(59,130,246,0.2), transparent 70%); bottom: -12%; left: -8%; }
+    .blob-2 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(16,185,129,0.15), transparent 70%); top: -6%; right: -5%; }
+
+    .card {
+      position: relative; z-index: 1; width: 100%; max-width: 480px; margin: 1.5rem;
+      padding: 2.5rem 2rem; background: var(--surface); backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: 0 32px 64px -16px rgba(0,0,0,0.6);
+    }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); text-decoration: none;
+      font-size: 0.82rem; font-weight: 500; margin-bottom: 1.5rem; transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg { width: 16px; height: 16px; }
+
+    .store-name { font-size: 1.65rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.35rem; }
+    .store-address { color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; margin-bottom: 2rem; }
+
+    .section-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 1rem; }
+
+    .service-grid { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .service-card {
+      display: flex; align-items: center; justify-content: space-between; padding: 1.15rem 1.25rem;
+      background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .service-card:hover { background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.12); }
+
+    .service-info { display: flex; align-items: center; gap: 0.85rem; }
+    .service-icon {
+      width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem;
+    }
+    .icon-doctor   { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.2); }
+    .icon-pharmacy { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2); }
+
+    .service-label { font-size: 0.95rem; font-weight: 600; }
+    .service-desc  { font-size: 0.78rem; color: var(--text-dim); margin-top: 0.15rem; }
+
+    .btn-join {
+      padding: 0.6rem 1.25rem; font-family: inherit; font-size: 0.82rem; font-weight: 600;
+      color: #fff; background: var(--primary); border: none; border-radius: 8px;
+      cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+    .btn-join:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 20px -4px var(--primary-glow); }
+    .btn-join:active { transform: translateY(0); }
+
+    @media (max-width: 480px) {
+      .card { padding: 2rem 1.25rem; margin: 1rem; }
+      .store-name { font-size: 1.35rem; }
+      .service-card { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+      .btn-join { width: 100%; text-align: center; }
+    }
+  </style>
 </head>
 <body>
-  <h1><%= store.name %></h1>
-  <p><%= store.address %></p>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
 
-  <h3>Select Service</h3>
+  <div class="card">
+    <a class="back-link" href="/store">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Back to Search
+    </a>
 
-  <form method="POST" action="/api/queue/join">
-    <input type="hidden" name="storeId" value="<%= store._id %>" />
-    <input type="hidden" name="type" value="DOCTOR" />
-    <button type="submit">Join Doctor Queue</button>
-  </form>
+    <h1 class="store-name"><%= store.name %></h1>
+    <p class="store-address"><%= store.address %></p>
 
-  <br/>
+    <div class="section-label">Select a Service</div>
 
-  <form method="POST" action="/api/queue/join">
-    <input type="hidden" name="storeId" value="<%= store._id %>" />
-    <input type="hidden" name="type" value="DISPENSARY" />
-    <button type="submit">Join Dispensary Queue</button>
-  </form>
+    <div class="service-grid">
+      <form method="POST" action="/api/queue/join">
+        <input type="hidden" name="storeId" value="<%= store._id %>" />
+        <input type="hidden" name="type" value="DOCTOR" />
+        <div class="service-card" onclick="this.closest('form').submit()" style="cursor:pointer">
+          <div class="service-info">
+            <div class="service-icon icon-doctor">🩺</div>
+            <div>
+              <div class="service-label">Doctor Queue</div>
+              <div class="service-desc">General consultation & checkup</div>
+            </div>
+          </div>
+          <button type="submit" class="btn-join">Join</button>
+        </div>
+      </form>
+
+      <form method="POST" action="/api/queue/join">
+        <input type="hidden" name="storeId" value="<%= store._id %>" />
+        <input type="hidden" name="type" value="DISPENSARY" />
+        <div class="service-card" onclick="this.closest('form').submit()" style="cursor:pointer">
+          <div class="service-info">
+            <div class="service-icon icon-pharmacy">💊</div>
+            <div>
+              <div class="service-label">Dispensary Queue</div>
+              <div class="service-desc">Medication & prescriptions</div>
+            </div>
+          </div>
+          <button type="submit" class="btn-join">Join</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
 </html>
